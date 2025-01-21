@@ -13,7 +13,8 @@
 
 ## Docker Compose YAML file.
 
-    Docker Compose configurations are mainly stored in a file named docker-compse.yml. This file includes all the necessary details to set up and run your apllications.
+    Docker Compose configurations are mainly stored in a file named docker-compse.yml. 
+    This file includes all the necessary details to set up and run your apllications.
 
 ### Key Elemnets of the docker-compose yaml file
 
