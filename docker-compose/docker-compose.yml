@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+# Database container with environment variables
+  db:
+    image: postgres:13
+    
+  # you may declare environment variable in the service defination or else 
+  # save them ot env_file(external file) and load from it.
+    environment:
+      - POSTGRES_USER:user_name
+      - POSTGRES_PASSWORD:user_password
+  # stores the data on db_data volume to ensure it's retained.
+    volumes:
+      - db_data:/var/lib/postgresql/data
+# web service built an image from a Dockerfile in the ./web directory and exposes port 5000.
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - frontend
+    volumes:
+      - shared-volume:/usr/src/app
+    environment:
+      - DATABASE_URL=postgres://user_name@user_password@db:5432/mydb
+
+# This web service is depends on db service, ensures that the databse is available when
+# web service starts.
+    depends_on:
+      - db
+
+# app service runs Node.js container
+  app:
+    image: node:14
+    working_dir: /app
+    networks:
+      - frontend
+    volumes:
+      - shared-volume:/app/data
+# Both services connects through the frontend network so that they can communicate.
+networks:
+  frontend:
+    driver: bridge
+# Shared-volume is mounted in both container, providing shared storage for files.
+volumes:
+  shared-volume:
+# db_data volume use the local driver and has the driver option which creates a 
+# bind mount point to a specific path on the host system. so now data base files will be 
+# saved to this location = /path/to/local/db_data
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /path/to/local/db_data
